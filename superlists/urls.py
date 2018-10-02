@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from lists import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # maps regex rout to the home_page view
+    path('', views.home_page, name='home'),
 ]
