@@ -1,5 +1,7 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import unittest
+import time
 
 # tests are organized into classes
 # which inherit from unittest.TestCase
@@ -32,6 +34,7 @@ class NewVisitorTest(unittest.TestCase):
 
         # user types "Buy peacock features" into a text box
         inputbox.send_keys('Buy peacock feathers')
+        time.sleep(1)
 
         # user hits enter, and the page updates, now the page
         # lists "1: buy peacock feathers" as an item in
