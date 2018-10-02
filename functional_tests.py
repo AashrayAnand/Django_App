@@ -40,9 +40,10 @@ class NewVisitorTest(unittest.TestCase):
         # lists "1: buy peacock feathers" as an item in
         # the to-do list table
         table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_element_by_tag_name('tr')
+        rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(
-            any(row.text == '1: Buy peacock feathers' for row in rows)
+            any(row.text == '1: Buy peacock feathers' for row in rows),
+            "New to-do item did not appear in table"
         )
         # forcing fail to be invoked, can be used to 
         # output message after all tests passed
