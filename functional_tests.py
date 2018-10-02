@@ -34,6 +34,10 @@ class NewVisitorTest(unittest.TestCase):
 
         # user types "Buy peacock features" into a text box
         inputbox.send_keys('Buy peacock feathers')
+
+        # user hits enter, the page updates, and now the page lists
+        # "1: Buy peacock feathers" as an item in a to-do list table
+        inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
         # user hits enter, and the page updates, now the page
@@ -41,10 +45,7 @@ class NewVisitorTest(unittest.TestCase):
         # the to-do list table
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text == '1: Buy peacock feathers' for row in rows),
-            "New to-do item did not appear in table"
-        )
+        self.assertIn('1: Buy peacock feathers', [row.text  for row in rows])
         # forcing fail to be invoked, can be used to 
         # output message after all tests passed
         self.fail('Finish the Test')
