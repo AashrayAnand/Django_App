@@ -1,11 +1,21 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+
+from django.test import LiveServerTestCase
+
+# fixes the settings issue when using LiveServerTestCase
+# should refactor this later
+import django
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "superlists.settings")
+django.setup()
+
 import unittest
 import time
 
 # tests are organized into classes
 # which inherit from unittest.TestCase
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     # setUp is a function run before
     # all tests, kind of like a try
     def setUp(self):
@@ -23,7 +33,7 @@ class NewVisitorTest(unittest.TestCase):
     # methods that start with 'test' are tests
     def test_can_start_list_and_retrieve_later(self):
         # first, get the webpage
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
         # notice the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
@@ -53,7 +63,6 @@ class NewVisitorTest(unittest.TestCase):
         self.test_for_row_in_table(row_text='2: Use peacock feathers to make a fly')
         # forcing fail to be invoked, can be used to 
         # output message after all tests passed
-        self.fail('Finish the Test')
-
+        self.fail('============= Finish the Test =============')
 if __name__ == "__main__":
     unittest.main(warnings='ignore')
