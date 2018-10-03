@@ -21,9 +21,33 @@ class HomePageTest(TestCase):
 
     # test to determine if a POST request can be saved
     def test_can_save_a_POST_request(self):
+        self.client.post('/', data={'item_text': 'A new list item'})
+        # check if item added for above POST request
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+    # test if a POST request results in a 302 redirect
+    def test_redirects_after_post(self):
         response = self.client.post('/', data={'item_text': 'A new list item'})
-        self.assertIn('A new list item', response.content.decode())
-        self.assertTemplateUsed(response, 'home.html')
+        # ensure the correct status code is sent in the POST response
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_displays_all_items(self):
+        # create two objects
+        Item.objects.create(text='itemey 1')
+        Item.objects.create(text='itemey 2')
+        # execute GET request
+        response = self.client.get('/')
+        # check if items exist in the list
+        self.assertIn('itemey 1', response.content.decode())
+        self.assertIn('itemey 2', response.content.decode())
+
+    # test if a GET request will result in no Item being created and saved
+    def test_only_save_item_if_necessary(self):
+        self.client.get('/')
+        self.assertEquals(Item.objects.count(), 0)
 
 # class of tests for Django object relational mapper
 class ItemModelTest(TestCase):
