@@ -43,7 +43,7 @@ class NewVisitorTest(LiveServerTestCase):
                 time.sleep(0.5)
 
     # methods that start with 'test' are tests
-    def test_can_start_list_and_retrieve_later(self):
+    def test_can_start_a_list_for_one_user(self):
         # first, get the webpage
         self.browser.get(self.live_server_url)
         # notice the page title and header mention to-do lists
@@ -61,11 +61,10 @@ class NewVisitorTest(LiveServerTestCase):
         # user hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
         inputbox.send_keys(Keys.ENTER)
-        #time.sleep(1)
+        self.wait_for_row_in_list_table(row_text='1: Buy peacock feathers')
         # user hits enter, and the page updates, now the page
         # lists "1: buy peacock feathers" as an item in
         # the to-do list table
-        self.wait_for_row_in_list_table(row_text='1: Buy peacock feathers')
         # add another item
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Use peacock feathers to make a fly')
@@ -74,6 +73,44 @@ class NewVisitorTest(LiveServerTestCase):
         self.wait_for_row_in_list_table(row_text='2: Use peacock feathers to make a fly')
         # forcing fail to be invoked, can be used to 
         # output message after all tests passed
+
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy peacock feathers')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Buy peacock feathers')
+
+        # for a given user, check the unique browser URL   
+        user_list_url = self.browser.current_url
+        # check that the URL for a unique user follows the RESTified
+        # pattern, of the list suffix, followed by any unique pattern
+        self.assertRegex(user_list_url, '/lists/.+')
+
+        # now, a second user comes to the website
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # they follow the same use pattern as the first user
+        self.browser.get(self.live_server_url)
+        # after getting the body content, ensure the item from the previous user
+        # does not appear
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('make a fly', page_text)
+
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy Milk')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Buy Milk')
+
+        # check that the URL for a unique user follows the RESTified
+        # pattern, of the list suffix, followed by any unique pattern        
+        user_2_list_url = self.browser.current_url
+        self.assertRegex(user_2_list_url, '/lists/.+')
+        # ensure that users do in fact have unique URLs, by comparing
+        # the URLs of the first and second user
+        self.assertNotEqual(user_2_list_url, user_list_url)
     def test_succeeded_all(self):
         self.fail('============= Finish the Test =============')
 if __name__ == "__main__":
