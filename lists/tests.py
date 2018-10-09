@@ -2,6 +2,26 @@ from django.test import TestCase
 from lists.models import Item
 # Create your tests here.
 
+
+class NewListTest(TestCase):
+
+    # test to determine if a POST request can be saved
+    def test_can_save_a_POST_request(self):
+        self.client.post('/lists/new', data={'item_text': 'A new list item'})
+        # check if item added for above POST request
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+    # test if a POST request results in a 302 redirect
+    def test_redirects_after_post(self):
+        response = self.client.post('/lists/new', data={'item_text': 'A new list item'})
+        # ensure the correct status code is sent in the POST response
+        # additionally, POST request should redirect to the '/lists/.../' URL mapping
+        # so we ensure that the response location is properly set to that value
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
+
 # class of tests for the list view
 class ListViewTest(TestCase):
 
@@ -31,28 +51,10 @@ class HomePageTest(TestCase):
     # it renders the correct content
     def test_uses_home_template(self):
         response = self.client.get('/')
-        self.assertTemplateUsed(response, 'home.html')
-    
+        self.assertTemplateUsed(response, 'home.html')    
     # alternatively, we can create an HttpRequest object, call the
     # home_page view function with the request as parameter, and check
     # the same assertion (self.client.get executes this all in one step) 
-
-    # test to determine if a POST request can be saved
-    def test_can_save_a_POST_request(self):
-        self.client.post('/', data={'item_text': 'A new list item'})
-        # check if item added for above POST request
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, 'A new list item')
-
-    # test if a POST request results in a 302 redirect
-    def test_redirects_after_post(self):
-        response = self.client.post('/', data={'item_text': 'A new list item'})
-        # ensure the correct status code is sent in the POST response
-        # additionally, POST request should redirect to the '/lists/.../' URL mapping
-        # so we ensure that the response location is properly set to that value
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
 
     # test if a GET request will result in no Item being created and saved
     def test_only_save_item_if_necessary(self):
