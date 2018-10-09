@@ -111,6 +111,7 @@ class NewVisitorTest(LiveServerTestCase):
         # ensure that users do in fact have unique URLs, by comparing
         # the URLs of the first and second user
         self.assertNotEqual(user_2_list_url, user_list_url)
+        
     def test_succeeded_all(self):
         self.fail('============= Finish the Test =============')
 if __name__ == "__main__":

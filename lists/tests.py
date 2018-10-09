@@ -2,6 +2,24 @@ from django.test import TestCase
 from lists.models import Item
 # Create your tests here.
 
+# class of tests for the list view
+class ListViewTest(TestCase):
+
+    def test_uses_list_template(self):
+        # test to ensure that the list endpoint is
+        # using the correct HTML template 'lists.html'
+        response = self.client.get('/lists/the-only-list-in-the-world/')
+        self.assertTemplateUsed(response, 'list.html')
+    def test_displays_all_items(self):
+        # create two objects
+        Item.objects.create(text='itemey 1')
+        Item.objects.create(text='itemey 2')
+        # execute GET request
+        response = self.client.get('/lists/the-only-list-in-the-world/')
+        # check if items exist in the list
+        self.assertContains(response, 'itemey 2')
+        self.assertContains(response, 'itemey 1')
+
 # class of tests for the home page ("/")
 class HomePageTest(TestCase):
     
@@ -31,18 +49,10 @@ class HomePageTest(TestCase):
     def test_redirects_after_post(self):
         response = self.client.post('/', data={'item_text': 'A new list item'})
         # ensure the correct status code is sent in the POST response
+        # additionally, POST request should redirect to the '/lists/.../' URL mapping
+        # so we ensure that the response location is properly set to that value
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
-
-    def test_displays_all_items(self):
-        # create two objects
-        Item.objects.create(text='itemey 1')
-        Item.objects.create(text='itemey 2')
-        # execute GET request
-        response = self.client.get('/')
-        # check if items exist in the list
-        self.assertIn('itemey 1', response.content.decode())
-        self.assertIn('itemey 2', response.content.decode())
+        self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
 
     # test if a GET request will result in no Item being created and saved
     def test_only_save_item_if_necessary(self):
