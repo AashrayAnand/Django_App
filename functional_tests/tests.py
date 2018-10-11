@@ -23,6 +23,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
     # all tests, kind of like a try
     def setUp(self):
         self.browser = webdriver.Firefox()
+        # use an environment called STAGING_SERVER, for staging deployment
+        staging_server = os.environ.get('STAGING_SERVER')
+        # LiveServerTestCase will try to always use its own test server
+        # to work around this when trying to test our own server, we can
+        # set the live_server_url field to point to our server instead
+        if staging_server:
+            self.live_server_url = 'http://' + staging_server
     # tearDown is a function run after
     # all tests, kind of like an except   
     def tearDown(self):
@@ -55,7 +62,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_new_item')
         self.assertAlmostEquals(
             inputbox.location['x'] + inputbox.size['width'] / 2,
-            365,
+            512,
             delta=10
         )
     # methods that start with 'test' are tests
@@ -65,7 +72,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # notice the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('To-Do', header_text)
+        self.assertIn('Enter an Item', header_text)
         # user is invited to enter a to-do item straight away
         inputbox = self.browser.find_element_by_id('id_new_item')
         self.assertEqual(
