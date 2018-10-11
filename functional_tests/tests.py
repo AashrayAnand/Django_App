@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 # fixes the settings issue when using LiveServerTestCase
 # should refactor this later
@@ -18,7 +18,7 @@ MAX_WAIT = 10
 
 # tests are organized into classes
 # which inherit from unittest.TestCase
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
     # setUp is a function run before
     # all tests, kind of like a try
     def setUp(self):
@@ -55,7 +55,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_new_item')
         self.assertAlmostEquals(
             inputbox.location['x'] + inputbox.size['width'] / 2,
-            512,
+            365,
             delta=10
         )
     # methods that start with 'test' are tests
